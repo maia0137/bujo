@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meu Bujo | Minimal & Visual</title>
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJz48cGF0aCBkPSdNMCAwaDI0djI0SDB6JyBzdHJva2U9J25vbmUnLz48cGF0aCBkPSdNNCAxOS41QTIuNSAyLjUgMCAwIDEgNi41IDE3SDIwVzJINi41YTIuNSAyLjUgMCAwIDAtMi41IDIuNXYxNXonLz48cGF0aCBkPSdNNi41IDJoMTR2MTVzMC01LTUuNS01SDR2NWg1LjV6JyBzdHJva2U9J25vbmUnLz48L3N2Zz4=">
+    
+    <style>
+        :root {
+            /* Cores super suaves, alto respiro visual, zero ruído */
+            --bg-color: #FAFAFA;
+            --surface-color: #FFFFFF;
+            --surface-alt: #F4F4F5;
+            --text-main: #27272A;
+            --text-muted: #71717A;
+            --text-faint: #A1A1AA;
+            --primary: #18181B;
+            --primary-hover: #3F3F46;
+            --border: #E4E4E7;
+            --border-focus: #A1A1AA;
+            --danger: #EF4444;
+            --success: #10B981;
+            --accent: #F59E0B;
+            --nav-bg: rgba(255, 255, 255, 0.85);
+            --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.03);
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #09090B;
+            --surface-color: #121214;
+            --surface-alt: #18181B;
+            --text-main: #F4F4F5;
+            --text-muted: #A1A1AA;
+            --text-faint: #52525B;
+            --primary: #FAFAFA;
+            --primary-hover: #D4D4D8;
+            --border: #27272A;
+            --border-focus: #52525B;
+            --danger: #F87171;
+            --success: #34D399;
+            --accent: #FBBF24;
+            --nav-bg: rgba(9, 9, 11, 0.85);
+            --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            transition: var(--transition); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100dvh; 
+            overflow: hidden; 
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+
+        #app-container { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 1200px; margin: 0 auto; }
+
+        header { 
+            display: flex; 
+            align-items: center; 
+            padding: 16px 20px; 
+            gap: 12px; 
+            z-index: 30;
+            background-color: var(--bg-color);
+        }
+
+        .search-wrapper { flex-grow: 1; position: relative; }
+        
+        #global-search { 
+            width: 100%; 
+            padding: 12px 16px 12px 42px; 
+            border-radius: 100px; 
+            border: 1px solid transparent; 
+            background-color: var(--surface-alt); 
+            color: var(--text-main); 
+            font-size: 15px; 
+            outline: none; 
+            transition: var(--transition); 
+        }
+        #global-search:focus { border-color: var(--border-focus); background-color: var(--surface-color); }
+        #global-search::placeholder { color: var(--text-muted); }
+        
+        .search-icon { 
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%); 
+            color: var(--text-muted); pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .search-icon svg { width: 18px; height: 18px; stroke-width: 2; }
+
+        .icon-btn { 
+            background: transparent; border: none; min-width: 44px; min-height: 44px; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; border-radius: 50%; color: var(--text-main); 
+            transition: var(--transition); flex-shrink: 0;
+        }
+        .icon-btn:hover { background-color: var(--surface-alt); }
+        .icon-btn svg { width: 22px; height: 22px; stroke-width: 1.5; }
+
+        nav { 
+            background-color: var(--nav-bg); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex; 
+            padding: 4px 20px 16px 20px; 
+            z-index: 20; 
+            overflow-x: auto; 
+            white-space: nowrap; 
+            gap: 8px; 
+            scrollbar-width: none; 
+        }
+        nav::-webkit-scrollbar { display: none; }
+
+        .nav-btn { 
+            background: var(--surface-color); border: 1px solid var(--border); 
+            color: var(--text-muted); display: flex; align-items: center; 
+            min-height: 40px; font-size: 14px; font-weight: 500; gap: 8px; 
+            cursor: pointer; border-radius: 100px; padding: 0 16px; 
+            transition: var(--transition); flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .nav-btn svg { width: 18px; height: 18px; stroke-width: 1.5; }
+        .nav-btn:hover { background: var(--surface-alt); border-color: var(--border-focus); }
+        .nav-btn.active { 
+            color: var(--bg-color); background-color: var(--primary); 
+            border-color: var(--primary); font-weight: 600;
+        }
+
+        main { 
+            flex-grow: 1; overflow-y: auto; position: relative; 
+            scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+            padding: 0 20px 80px 20px;
+        }
+        
+        .view-section { 
+            display: none; max-width: 720px; margin: 0 auto; 
+            animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; transform: translateY(10px);
+        }
+        .view-section.active { display: block; }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* CORREÇÃO DO ÍCONE GIGANTE: Fixando tamanho estrito para SVGs em títulos */
+        h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em;}
+        h2 svg { width: 26px !important; height: 26px !important; min-width: 26px; flex-shrink: 0; display: block; }
+        
+        h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+        .view-desc { color: var(--text-muted); margin-bottom: 24px; font-size: 15px; }
+
+        .editor-container { margin-bottom: 32px; width: 100%; position: relative;}
+        
+        /* Toolbar agrupada para melhor organização mental */
+        .editor-toolbar { 
+            display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;
+            align-items: center; background-color: var(--surface-alt);
+            padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--border);
+        }
+        
+        .toolbar-group { 
+            display: flex; gap: 4px; align-items: center;
+            border-right: 1px solid var(--border); padding-right: 8px; margin-right: 2px;
+        }
+        .toolbar-group:last-child { border-right: none; padding-right: 0; margin-right: 0;}
+        
+        .action-btn { 
+            background: var(--surface-color); border: 1px solid var(--border); color: var(--text-main); 
+            border-radius: 6px; padding: 6px 12px; min-height: 36px; 
+            font-size: 13px; font-weight: 500; cursor: pointer; 
+            display: flex; align-items: center; gap: 6px; transition: var(--transition);
+            white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .action-btn:hover { background-color: var(--bg-color); border-color: var(--border-focus); }
+        .action-btn.icon-only { padding: 6px; min-width: 36px; justify-content: center; font-size: 16px;}
+        .action-btn svg { width: 16px; height: 16px; stroke-width: 2; }
+        
+        .action-btn.primary { 
+            background-color: var(--primary); color: var(--bg-color); font-weight: 600; 
+            padding: 8px 16px; border-radius: 100px; border: none; box-shadow: none;
+        }
+        .action-btn.primary:hover { background-color: var(--primary-hover); transform: translateY(-1px);}
+
+        textarea { 
+            width: 100%; min-height: 220px; padding: 16px 20px; 
+            border-radius: var(--radius-md); border: 1px solid var(--border); 
+            background-color: var(--surface-color); color: var(--text-main); 
+            font-size: 16px; line-height: 1.7; resize: vertical; outline: none; 
+            transition: var(--transition); box-shadow: var(--shadow-subtle);
+        }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+
+        .year-group { margin-bottom: 24px; }
+        .year-summary { 
+            font-size: 20px; font-weight: 700; color: var(--text-main); 
+            padding: 8px 0; cursor: pointer; list-style: none; display: flex; 
+            align-items: center; gap: 8px; border-bottom: 2px solid var(--text-main);
+            margin-bottom: 16px;
+        }
+        .year-summary::-webkit-details-marker { display: none; }
+        
+        .month-group { margin: 0 0 16px 0; }
+        .month-summary { 
+            font-size: 15px; font-weight: 600; color: var(--text-muted); 
+            padding: 12px 0; cursor: pointer; list-style: none; display: flex; 
+            align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .month-summary::-webkit-details-marker { display: none; }
+        
+        .chevron { transition: transform 0.2s; width: 16px !important; height: 16px !important; stroke-width: 2;}
+        details[open] > summary > .chevron { transform: rotate(90deg); }
+
+        .diario-entry { 
+            margin-bottom: 16px; background-color: var(--surface-color); 
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);
+            border: 1px solid var(--border); overflow: hidden;
+        }
+        .diario-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px 20px; cursor: pointer; font-weight: 600; font-size: 15px;
+            transition: var(--transition);
+        }
+        .diario-header:hover { background-color: var(--surface-alt); }
+        .diario-body { display: none; padding: 0 20px 20px 20px; }
+        .diario-body.open { display: block; animation: fadeUp 0.3s forwards; }
+        
+        .delete-btn { color: var(--danger); opacity: 0.8; }
+        .delete-btn:hover { opacity: 1; background-color: rgba(239, 68, 68, 0.1); border-color: var(--danger);}
+
+        .habit-progress-bar { width: 100%; height: 6px; background-color: var(--surface-alt); border-radius: 10px; margin-bottom: 20px; overflow: hidden; position: relative;}
+        .habit-progress-fill { height: 100%; background-color: var(--success); width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .habit-progress-text { font-size: 14px; color: var(--text-main); font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 8px;}
+        .habit-progress-text span:last-child { color: var(--text-muted); font-weight: normal; }
+
+        .habit-table-container { 
+            overflow-x: auto; border-radius: var(--radius-lg); 
+            background-color: var(--surface-color); scrollbar-width: none; 
+            -webkit-overflow-scrolling: touch; border: 1px solid var(--border);
+            box-shadow: var(--shadow-subtle);
+        }
+        .habit-table-container::-webkit-scrollbar { display: none; }
+        .habit-table-inner { width: max-content; min-width: 100%; display: flex; flex-direction: column;}
+        
+        .habit-grid { display: grid; grid-template-columns: minmax(160px, auto) repeat(7, 48px); align-items: center; border-bottom: 1px solid var(--border);}
+        .habit-grid:last-child { border-bottom: none; }
+        
+        .habit-header-row { background-color: var(--surface-alt); position: sticky; top: 0; z-index: 2;}
+        .habit-header { text-align: center; font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 12px 4px;}
+        
+        .habit-name-cell { 
+            position: sticky; left: 0; background-color: var(--surface-color); 
+            padding: 12px 16px; font-size: 14px; font-weight: 500; border-right: 1px solid var(--border); 
+            display: flex; align-items: center; justify-content: space-between; gap: 8px; z-index: 1;
+        }
+        .habit-header-row .habit-name-cell { background-color: var(--surface-alt); z-index: 3;}
+        .habit-name-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;}
+        
+        .streak-badge { 
+            font-size: 12px; font-weight: 700; color: var(--accent); 
+            display: flex; align-items: center; gap: 4px;
+        }
+        
+        .habit-checkbox-cell { padding: 10px 4px; display: flex; justify-content: center; }
+        .habit-checkbox { 
+            width: 24px; height: 24px; cursor: pointer; accent-color: var(--success);
+            border-radius: 4px; margin: 0;
+        }
+
+        .sos-card { 
+            background-color: var(--surface-color); border: 1px solid var(--border); 
+            border-left: 3px solid var(--primary); border-radius: var(--radius-md); 
+            padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-subtle);
+        }
+        .sos-card h3 { color: var(--text-main); margin-bottom: 12px; font-size: 15px;}
+        .sos-card ol { padding-left: 20px; color: var(--text-muted); font-size: 14px;}
+        .sos-card li { margin-bottom: 6px; padding-left: 4px;}
+
+        .modal-overlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.4); z-index: 100; justify-content: center; align-items: center; 
+            padding: 20px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; animation: fadeUp 0.2s; }
+        .modal-content { 
+            background: var(--bg-color); padding: 32px; border-radius: var(--radius-lg); 
+            max-width: 420px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+        }
+        .share-btn-group { display: flex; flex-direction: column; gap: 12px; margin-top: 24px;}
+        .btn-share { 
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            padding: 14px; border-radius: var(--radius-md); text-decoration: none; 
+            font-weight: 600; font-size: 15px; color: white; transition: transform 0.2s;
+        }
+        .btn-share:hover { transform: scale(1.02); }
+        .btn-whatsapp { background-color: #25D366; }
+        .btn-email { background-color: var(--primary); }
+        .btn-close-modal { 
+            margin-top: 16px; width: 100%; background: transparent; border: none; 
+            color: var(--text-muted); padding: 12px; cursor: pointer; font-weight: 500; 
+        }
+        .btn-close-modal:hover { color: var(--text-main); }
+        
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state svg { width: 48px !important; height: 48px !important; margin: 0 auto 16px auto; display: block; opacity: 0.2; }
+
+        @media (min-width: 800px) {
+            #app-container { flex-direction: row; }
+            header { display: none; }
+            nav { 
+                flex-direction: column; justify-content: flex-start; 
+                width: 220px; height: 100%; border-right: 1px solid var(--border); 
+                padding: 32px 16px; gap: 4px; overflow-y: auto; background: var(--bg-color);
+            }
+            .nav-btn { min-height: 48px; border: none; background: transparent; box-shadow: none; justify-content: flex-start;}
+            .nav-btn.active { background-color: var(--surface-alt); color: var(--primary); border: none;}
+            
+            main { flex-grow: 1; display: flex; flex-direction: column; padding: 40px 60px;}
+            .view-section { max-width: 800px; padding: 0;}
+            .desktop-header { display: flex; gap: 16px; margin-bottom: 40px; align-items: center;}
+        }
+        @media (max-width: 799px) {
+            .desktop-header { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<svg width="0" height="0" style="display: none;">
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></symbol>
+    <symbol id="icon-theme" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></symbol>
+    <symbol id="icon-export" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></symbol>
+    <symbol id="icon-import" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></symbol>
+    <symbol id="icon-diary" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></symbol>
+    <symbol id="icon-future" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></symbol>
+    <symbol id="icon-finance" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></symbol>
+    <symbol id="icon-habit" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></symbol>
+    <symbol id="icon-idea" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
+    <symbol id="icon-quote" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></symbol>
+    <symbol id="icon-refuge" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></symbol>
+    <symbol id="icon-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></symbol>
+    <symbol id="icon-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path></symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></symbol>
+</svg>
+
+<div id="app-container">
+    
+    <header class="mobile-header">
+        <div class="search-wrapper">
+            <span class="search-icon"><svg><use href="#icon-search"></use></svg></span>
+            <input type="search" id="global-search" placeholder="Pesquisar..." aria-label="Buscar anotações">
+        </div>
+        <button class="icon-btn" id="theme-toggle" title="Alternar Tema"><svg><use href="#icon-theme"></use></svg></button>
+        <button class="icon-btn" id="share-btn" title="Exportar/Compartilhar Backup"><svg><use href="#icon-export"></use></svg></button>
+        <button class="icon-btn" id="import-btn" title="Importar Backup"><svg><use href="#icon-import"></use></svg></button>
+        <input type="file" id="import-file" hidden accept=".json">
+    </header>
+
+    <nav>
+        <button class="nav-btn active" data-target="diario"><svg><use href="#icon-diary"></use></svg> Diário</button>
+        <button class="nav-btn" data-target="futuro"><svg><use href="#icon-future"></use></svg> Futuro</button>
+        <button class="nav-btn" data-target="financas"><svg><use href="#icon-finance"></use></svg> Finanças</button>
+        <button class="nav-btn" data-target="habitos"><svg><use href="#icon-habit"></use></svg> Hábitos</button>
+        <button class="nav-btn" data-target="ideias"><svg><use href="#icon-idea"></use></svg> Ideias</button>
+        <button class="nav-btn" data-target="citacoes"><svg><use href="#icon-quote"></use></svg> Citações</button>
+        <button class="nav-btn" data-target="refugio"><svg><use href="#icon-refuge"></use></svg> Refúgio</button>
+    </nav>
+
+    <main>
+        <!-- Desktop Header (Exibido apenas em telas maiores) -->
+        <div class="desktop-header">
+            <div class="search-wrapper">
+                <span class="search-icon"><svg><use href="#icon-search"></use></svg></span>
+                <input type="search" id="desktop-search" placeholder="Pesquisar no Bujo..." aria-label="Buscar anotações">
+            </div>
+            <button class="icon-btn" onclick="document.getElementById('theme-toggle').click()" title="Alternar Tema"><svg><use href="#icon-theme"></use></svg></button>
+            <button class="icon-btn" onclick="document.getElementById('share-btn').click()" title="Exportar/Compartilhar"><svg><use href="#icon-export"></use></svg></button>
+            <button class="icon-btn" onclick="document.getElementById('import-btn').click()" title="Importar"><svg><use href="#icon-import"></use></svg></button>
+        </div>
+
+        <section id="view-busca" class="view-section">
+            <h2><svg><use href="#icon-search"></use></svg> Resultados da Busca</h2>
+            <div id="search-results-container" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;"></div>
+        </section>
+
+        <section id="view-diario" class="view-section active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2><svg><use href="#icon-diary"></use></svg> Diário</h2>
+                <button class="action-btn primary" id="btn-novo-diario"><svg><use href="#icon-plus"></use></svg> Novo Dia</button>
+            </div>
+            <div id="diario-list"></div>
+        </section>
+
+        <section id="view-futuro" class="view-section">
+            <h2><svg><use href="#icon-future"></use></svg> Registro Futuro</h2>
+            <p class="view-desc">Metas macro e eventos. O que não precisa de atenção hoje, fica aqui.</p>
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="action-btn icon-only" onclick="execUndo('text-futuro')" title="Desfazer"><svg><use href="#icon-undo"></use></svg></button>
+                        <button class="action-btn icon-only" onclick="execRedo('text-futuro')" title="Refazer"><svg><use href="#icon-redo"></use></svg></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="action-btn" onclick="insertVisualText('text-futuro', '\n📅 __/__: ')">📅 Evento</button>
+                        <button class="action-btn" onclick="insertVisualText('text-futuro', '\n- [ ] ')">📋 Tarefa</button>
+                    </div>
+                    <div class="toolbar-group" style="border-right: none;">
+                        <button class="action-btn icon-only" onclick="insertVisualText('text-futuro', '🔴 ')" title="Urgente">🔴</button>
+                        <button class="action-btn icon-only" onclick="insertVisualText('text-futuro', '✅ ')" title="Concluído">✅</button>
+                        <button class="action-btn icon-only" onclick="insertVisualText('text-futuro', '➡️ ')" title="Adiado">➡️</button>
+                    </div>
+                </div>
+                <textarea id="text-futuro" placeholder="Escreva planos distantes..."></textarea>
+            </div>
+        </section>
+
+        <section id="view-financas" class="view-section">
+            <h2><svg><use href="#icon-finance"></use></svg> Finanças</h2>
+            <p class="view-desc">Tire os números da cabeça. Controle suas contas e parcelas em paz.</p>
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="action-btn icon-only" onclick="execUndo('text-financas')" title="Desfazer"><svg><use href="#icon-undo"></use></svg></button>
+                        <button class="action-btn icon-only" onclick="execRedo('text-financas')" title="Refazer"><svg><use href="#icon-redo"></use></svg></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="action-btn" onclick="insertVisualText('text-financas', '\n- [ ] Venc. __/__: R$ ____,00 - ')">💵 Nova Conta</button>
+                    </div>
+                    <div class="toolbar-group" style="border-right: none;">
+                        <button class="action-btn icon-only" onclick="insertVisualText('text-financas', '✅ PAGO ')" title="Pago">✅</button>
+                        <button class="action-btn icon-only" onclick="insertVisualText('text-financas', '🔴 ')" title="Atrasado">🔴</button>
+                    </div>
+                </div>
+                <textarea id="text-financas" placeholder="Planeje seus pagamentos..."></textarea>
+            </div>
+        </section>
+
+        <section id="view-habitos" class="view-section">
+            <h2><svg><use href="#icon-habit"></use></svg> Hábitos</h2>
+            <p class="view-desc">O segredo não é a perfeição, é a constância. Acompanhe sua ofensiva.</p>
+            
+            <div class="habit-progress-text" id="habit-progress-label"><span>Foco Hoje</span> <span id="habit-percent">0%</span></div>
+            <div class="habit-progress-bar"><div class="habit-progress-fill" id="habit-progress-bar"></div></div>
+            
+            <div id="habit-container" style="margin-bottom: 40px;"></div>
+
+            <h3>Configurar Hábitos</h3>
+            <p class="view-desc" style="font-size: 13px; margin-bottom: 12px;">Um por linha. Seja realista.</p>
+            <textarea id="text-habit-names" style="min-height: 120px;" placeholder="Meditar\nLer 10 páginas..."></textarea>
+        </section>
+
+        <section id="view-ideias" class="view-section">
+            <h2><svg><use href="#icon-idea"></use></svg> Ideias</h2>
+            <p class="view-desc">Mente acelerada? Estacione pensamentos e links aleatórios aqui.</p>
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="action-btn icon-only" onclick="execUndo('text-ideias')" title="Desfazer"><svg><use href="#icon-undo"></use></svg></button>
+                        <button class="action-btn icon-only" onclick="execRedo('text-ideias')" title="Refazer"><svg><use href="#icon-redo"></use></svg></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="action-btn" onclick="insertVisualText('text-ideias', '\n💡 Ideia: ')">💡 Ideia</button>
+                        <button class="action-btn" onclick="insertVisualText('text-ideias', '\n🔗 Link: ')">🔗 Link</button>
+                        <button class="action-btn" onclick="insertVisualText('text-ideias', '\n- [ ] ')">📋 Lista</button>
+                    </div>
+                    <div class="toolbar-group" style="border-right: none;">
+                        <button class="action-btn icon-only" onclick="insertVisualText('text-ideias', '⭐ ')" title="Destaque">⭐</button>
+                        <button class="action-btn icon-only" onclick="insertVisualText('text-ideias', '❓ ')" title="Dúvida">❓</button>
+                    </div>
+                </div>
+                <textarea id="text-ideias" placeholder="Despejo mental..."></textarea>
+            </div>
+        </section>
+
+        <section id="view-citacoes" class="view-section">
+            <h2><svg><use href="#icon-quote"></use></svg> Citações</h2>
+            <p class="view-desc">Trechos de livros, artigos ou falas que alimentam a sua mente.</p>
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="action-btn icon-only" onclick="execUndo('text-citacoes')" title="Desfazer"><svg><use href="#icon-undo"></use></svg></button>
+                        <button class="action-btn icon-only" onclick="execRedo('text-citacoes')" title="Refazer"><svg><use href="#icon-redo"></use></svg></button>
+                    </div>
+                    <div class="toolbar-group" style="border-right: none;">
+                        <button class="action-btn" onclick="insertVisualText('text-citacoes', '\n> &quot;&quot; \n– Autor (Livro/Pág)\n\n📌 Nota: ')">📖 Inserir Template</button>
+                    </div>
+                </div>
+                <textarea id="text-citacoes" placeholder="Guarde sabedoria aqui..."></textarea>
+            </div>
+        </section>
+
+        <section id="view-refugio" class="view-section">
+            <h2><svg><use href="#icon-refuge"></use></svg> Refúgio</h2>
+            <p class="view-desc">Seu espaço seguro. Referências do livro <i>"Para a vida fazer sentido"</i> (Herbert Cleber).</p>
+            
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="action-btn icon-only" onclick="execUndo('text-refugio')" title="Desfazer"><svg><use href="#icon-undo"></use></svg></button>
+                        <button class="action-btn icon-only" onclick="execRedo('text-refugio')" title="Refazer"><svg><use href="#icon-redo"></use></svg></button>
+                    </div>
+                    <div class="toolbar-group" style="border-right: none;">
+                        <button class="action-btn" onclick="insertVisualText('text-refugio', '\n📌 Meu pensamento: ')">✍️ Anotar Reflexão</button>
+                    </div>
+                </div>
+                <textarea id="text-refugio" style="min-height: 150px; margin-bottom: 24px;" placeholder="Meus pensamentos de calmaria e regulação emocional..."></textarea>
+            </div>
+
+            <div class="sos-card">
+                <h3>Práticas para dias de vazio (Pág 17)</h3>
+                <ol><li>Ore sem cronômetro.</li><li>Desligue o celular por 30 min.</li><li>Leia Salmo 42 e escreva uma carta a Deus.</li><li>Agradeça as coisas simples.</li><li>Caminhe sem pressa.</li></ol>
+            </div>
+            <div class="sos-card">
+                <h3>Quando a dor insiste (Pág 38)</h3>
+                <ol><li>Nomeie o que dói.</li><li>Abra o círculo (procure um amigo/líder).</li><li>Pratique a memória da fidelidade.</li><li>Fortaleça sua fé (práticas devocionais).</li><li>Alimente-se de textos de lamento e esperança (Salmos 13, 42).</li></ol>
+            </div>
+            <div class="sos-card">
+                <h3>Tempos de Incerteza (Pág 56)</h3>
+                <ol><li>Admita que não sabe.</li><li>Busque conselhos piedosos.</li><li>Pergunte a Deus, mas caminhe.</li><li>Pratique o silêncio interior.</li><li>Descanse (Deus vê o que você não entende).</li></ol>
+            </div>
+            <div class="sos-card">
+                <h3>Lições para o Coração (Pág 135)</h3>
+                <ol><li>Amar é escolher ver.</li><li>Pequenos gestos têm poder eterno.</li><li>Deus se manifesta no ordinário.</li><li>A ternura é revolucionária.</li></ol>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Modal Compartilhamento -->
+<div id="share-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Backup Salvo!</h3>
+        <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 20px;">O arquivo <strong>meu_bujo_backup.json</strong> foi baixado no seu dispositivo. Escolha abaixo como deseja arquivá-lo (lembre-se de <strong>anexar o arquivo</strong> na mensagem).</p>
+        
+        <div class="share-btn-group">
+            <a href="#" id="share-email" class="btn-share btn-email" target="_blank">Enviar para o E-mail</a>
+            <a href="#" id="share-whatsapp" class="btn-share btn-whatsapp" target="_blank">Enviar para o WhatsApp</a>
+        </div>
+        <button class="btn-close-modal" onclick="document.getElementById('share-modal').classList.remove('active')">Voltar</button>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'bujo_tdah_data';
+    const DIARIO_TEMPLATE = `📋 Hábitos do Dia (Pág 67):\n- [ ] Anotar 3 gratidões.\n- [ ] Um ato de bondade.\n- [ ] Reescrever a história com propósito.\n- [ ] Dar significado à rotina.\n- [ ] Caminhar 20 min sem celular.\n\n✍️ Notas do dia:\n`;
+
+    let defaultState = {
+        theme: 'light', futuro: '', financas: '', ideias: '', citacoes: '', refugio: '',
+        habitNames: 'Orar / Meditar 🧘\nMover o corpo 🏃\nLer um livro 📚',
+        habits: {}, diario: [] 
+    };
+
+    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultState;
+    // Migração de chaves faltantes de backups antigos
+    ['financas', 'citacoes', 'refugio'].forEach(k => { if(appData[k] === undefined) appData[k] = ''; });
+
+    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+
+    function applyTheme(themeName) {
+        document.documentElement.setAttribute('data-theme', themeName);
+        appData.theme = themeName;
+        saveData();
+    }
+    document.getElementById('theme-toggle').addEventListener('click', () => applyTheme(appData.theme === 'dark' ? 'light' : 'dark'));
+
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const views = document.querySelectorAll('.view-section');
+
+    function switchTab(targetId) {
+        views.forEach(v => v.classList.remove('active'));
+        navButtons.forEach(b => b.classList.remove('active'));
+        const targetView = document.getElementById(`view-${targetId}`);
+        if(targetView) targetView.classList.add('active');
+        const targetBtn = document.querySelector(`.nav-btn[data-target="${targetId}"]`);
+        if(targetBtn) {
+            targetBtn.classList.add('active');
+            targetBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    }
+    navButtons.forEach(btn => btn.addEventListener('click', (e) => switchTab(e.currentTarget.getAttribute('data-target'))));
+
+    window.insertVisualText = function(textareaId, text) {
+        const el = document.getElementById(textareaId);
+        if(!el) return; el.focus();
+        if (!document.execCommand('insertText', false, text)) {
+            const start = el.selectionStart; const end = el.selectionEnd;
+            el.value = el.value.substring(0, start) + text + el.value.substring(end);
+            el.selectionStart = el.selectionEnd = start + text.length;
+        }
+        el.dispatchEvent(new Event('input', { bubbles: true })); 
+    };
+    window.execUndo = function(textareaId) { document.getElementById(textareaId)?.focus(); document.execCommand('undo'); };
+    window.execRedo = function(textareaId) { document.getElementById(textareaId)?.focus(); document.execCommand('redo'); };
+
+    // Lógica inteligente para extrair Ano e Mês diretamente do texto digitado
+    function getYearMonthFromEntry(entry) {
+        const yearMatch = entry.dateStr.match(/\b(20[2-9]\d)\b/);
+        const year = yearMatch ? parseInt(yearMatch[1]) : new Date(entry.id).getFullYear();
+
+        const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        let month = months.find(m => entry.dateStr.toLowerCase().includes(m.toLowerCase()));
+        
+        if (!month) {
+            let d = new Date(entry.id);
+            if(isNaN(d.getTime())) d = new Date();
+            let mStr = d.toLocaleString('pt-BR', { month: 'long' });
+            month = mStr.charAt(0).toUpperCase() + mStr.slice(1);
+        }
+        return { year, month };
+    }
+
+    const diarioListContainer = document.getElementById('diario-list');
+
+    function renderDiario() {
+        diarioListContainer.innerHTML = '';
+        if(appData.diario.length === 0) {
+            return diarioListContainer.innerHTML = '<div class="empty-state"><svg><use href="#icon-diary"></use></svg><p>O começo de tudo. Adicione um novo dia.</p></div>';
+        }
+
+        const grouped = {};
+        appData.diario.forEach(entry => {
+            const { year, month } = getYearMonthFromEntry(entry);
+            if (!grouped[year]) grouped[year] = {};
+            if (!grouped[year][month]) grouped[year][month] = [];
+            grouped[year][month].push(entry);
+        });
+
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        let currentMonthStrRaw = now.toLocaleString('pt-BR', { month: 'long' });
+        const currentMonthStr = currentMonthStrRaw.charAt(0).toUpperCase() + currentMonthStrRaw.slice(1);
+
+        Object.keys(grouped).sort((a,b) => b - a).forEach(year => {
+            const yearDetails = document.createElement('details');
+            yearDetails.className = 'year-group';
+            if (parseInt(year) === currentYear || Object.keys(grouped).length === 1) yearDetails.open = true;
+
+            const yearSummary = document.createElement('summary');
+            yearSummary.className = 'year-summary';
+            yearSummary.innerHTML = `<span>${year}</span> <svg class="chevron"><use href="#icon-chevron"></use></svg>`;
+            yearDetails.appendChild(yearSummary);
+
+            Object.keys(grouped[year]).forEach(month => {
+                const monthDetails = document.createElement('details');
+                monthDetails.className = 'month-group';
+                if ((parseInt(year) === currentYear && month === currentMonthStr) || Object.keys(grouped[year]).length === 1) monthDetails.open = true;
+
+                const monthSummary = document.createElement('summary');
+                monthSummary.className = 'month-summary';
+                monthSummary.innerHTML = `<span>${month}</span> <svg class="chevron"><use href="#icon-chevron"></use></svg>`;
+                monthDetails.appendChild(monthSummary);
+
+                grouped[year][month].forEach((entry, index) => {
+                    const isOpen = (parseInt(year) === currentYear && month === currentMonthStr && index === 0);
+                    const div = document.createElement('div');
+                    div.className = 'diario-entry';
+                    div.innerHTML = `
+                        <div class="diario-header" onclick="toggleDiario(this)">
+                            <span>${entry.dateStr.split(',')[0]} - ${entry.dateStr.match(/\d{1,2}\sde\s[a-zA-Z]+/i) || new Date(entry.id).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})}</span>
+                        </div>
+                        <div class="diario-body ${isOpen ? 'open' : ''}">
+                            <div class="editor-container" style="margin-bottom: 0;">
+                                <div class="editor-toolbar">
+                                    <div class="toolbar-group">
+                                        <button class="action-btn icon-only" onclick="event.stopPropagation(); execUndo('diario-${entry.id}')"><svg><use href="#icon-undo"></use></svg></button>
+                                        <button class="action-btn icon-only" onclick="event.stopPropagation(); execRedo('diario-${entry.id}')"><svg><use href="#icon-redo"></use></svg></button>
+                                    </div>
+                                    <div class="toolbar-group">
+                                        <button class="action-btn" onclick="event.stopPropagation(); insertVisualText('diario-${entry.id}', '[${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}] ')">⏰ Hora</button>
+                                        <button class="action-btn" onclick="event.stopPropagation(); insertVisualText('diario-${entry.id}', '- [ ] ')">📋 Check</button>
+                                    </div>
+                                    <div class="toolbar-group" style="border-right: none; margin-left: auto;">
+                                        <button class="action-btn delete-btn" onclick="event.stopPropagation(); deleteDiario(${entry.id})">Apagar</button>
+                                    </div>
+                                </div>
+                                <textarea id="diario-${entry.id}" class="diario-textarea" data-id="${entry.id}">${entry.content}</textarea>
+                            </div>
+                        </div>
+                    `;
+                    monthDetails.appendChild(div);
+                });
+                yearDetails.appendChild(monthDetails);
+            });
+            diarioListContainer.appendChild(yearDetails);
+        });
+    }
+
+    window.toggleDiario = function(headerEl) { headerEl.nextElementSibling.classList.toggle('open'); };
+
+    document.getElementById('btn-novo-diario').addEventListener('click', () => {
+        const dateStr = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        appData.diario.unshift({ id: Date.now(), dateStr: dateStr.charAt(0).toUpperCase() + dateStr.slice(1), content: DIARIO_TEMPLATE });
+        appData.diario.sort((a,b) => b.id - a.id);
+        saveData(); renderDiario();
+    });
+
+    window.deleteDiario = function(id) {
+        if(confirm('Tem certeza que deseja apagar? Esta ação não pode ser desfeita.')) {
+            appData.diario = appData.diario.filter(e => e.id !== id);
+            saveData(); renderDiario();
+        }
+    };
+
+    function getLast7Days() {
+        const dates = [];
+        for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); dates.push(d.toISOString().split('T')[0]); }
+        return dates;
+    }
+
+    function calculateStreak(habitIndex) {
+        let streak = 0; let d = new Date();
+        for (let i = 0; i < 365; i++) {
+            let dateStr = d.toISOString().split('T')[0];
+            if (appData.habits[dateStr] && appData.habits[dateStr][habitIndex]) streak++;
+            else if (i !== 0) break; 
+            d.setDate(d.getDate() - 1);
+        }
+        return streak;
+    }
+
+    function renderHabits() {
+        const container = document.getElementById('habit-container');
+        container.innerHTML = '';
+        const habitsList = appData.habitNames.split('\n').filter(h => h.trim() !== '');
+        
+        if(habitsList.length === 0) {
+            document.getElementById('habit-progress-bar').style.width = '0%';
+            document.getElementById('habit-percent').innerText = '0%';
+            return container.innerHTML = '<p class="view-desc">Defina seus hábitos abaixo.</p>';
+        }
+
+        const days = getLast7Days();
+        let completedToday = 0;
+
+        const table = document.createElement('div');
+        table.className = 'habit-table-container';
+        let innerHtml = `<div class="habit-table-inner"><div class="habit-grid habit-header-row"><div class="habit-name-cell">Hábito</div>`;
+        
+        days.forEach((d, i) => {
+            const isToday = i === 6;
+            innerHtml += `<div class="habit-header" ${isToday ? 'style="color:var(--text-main);"' : ''}>${d.split('-')[2]}/${d.split('-')[1]}<br>${isToday?'Hoje':''}</div>`;
+        });
+        innerHtml += `</div>`;
+
+        habitsList.forEach((habit, habitIndex) => {
+            const streak = calculateStreak(habitIndex);
+            let rowHtml = `<div class="habit-grid"><div class="habit-name-cell"><span class="habit-name-text" title="${habit}">${habit}</span> <span class="streak-badge">🔥 ${streak}</span></div>`;
+            
+            days.forEach((date, dayIndex) => {
+                if(!appData.habits[date]) appData.habits[date] = [];
+                const isChecked = appData.habits[date][habitIndex] ? 'checked' : '';
+                if(dayIndex === 6 && isChecked) completedToday++;
+                rowHtml += `<div class="habit-checkbox-cell"><input type="checkbox" class="habit-checkbox" data-date="${date}" data-index="${habitIndex}" ${isChecked}></div>`;
+            });
+            rowHtml += `</div>`;
+            innerHtml += rowHtml;
+        });
+        table.innerHTML = innerHtml + `</div>`;
+        container.appendChild(table);
+
+        const progress = Math.round((completedToday / habitsList.length) * 100);
+        document.getElementById('habit-progress-bar').style.width = `${progress}%`;
+        document.getElementById('habit-percent').innerText = `${progress}%`;
+    }
+
+    document.getElementById('habit-container').addEventListener('change', (e) => {
+        if(e.target.classList.contains('habit-checkbox')) {
+            appData.habits[e.target.getAttribute('data-date')][e.target.getAttribute('data-index')] = e.target.checked;
+            saveData(); renderHabits(); 
+        }
+    });
+
+    document.querySelector('main').addEventListener('input', (e) => {
+        const id = e.target.id;
+        if (id === 'text-futuro') appData.futuro = e.target.value;
+        else if (id === 'text-financas') appData.financas = e.target.value;
+        else if (id === 'text-ideias') appData.ideias = e.target.value;
+        else if (id === 'text-citacoes') appData.citacoes = e.target.value;
+        else if (id === 'text-refugio') appData.refugio = e.target.value;
+        else if (id === 'text-habit-names') {
+            appData.habitNames = e.target.value;
+            clearTimeout(window.habitTimeout);
+            window.habitTimeout = setTimeout(() => { renderHabits(); saveData(); }, 800); return;
+        } else if (e.target.classList.contains('diario-textarea')) {
+            const entry = appData.diario.find(x => x.id === parseInt(e.target.getAttribute('data-id')));
+            if(entry) entry.content = e.target.value;
+        }
+        saveData();
+    });
+
+    const handleSearch = (e) => {
+        const term = e.target.value.toLowerCase().trim();
+        if (term.length > 2) {
+            switchTab('busca');
+            const resContainer = document.getElementById('search-results-container');
+            resContainer.innerHTML = '';
+            let count = 0;
+
+            const makeResult = (title, tab, snippet) => {
+                count++;
+                const div = document.createElement('div'); 
+                div.className = 'diario-entry'; div.style.cursor = 'pointer'; div.style.padding = '16px';
+                div.innerHTML = `<h3 style="margin:0; font-size:15px;">${title}</h3><p style="color:var(--text-muted); font-size:13px; margin-top:4px;">${snippet}</p>`;
+                div.onclick = () => { switchTab(tab); e.target.value = ''; }; 
+                resContainer.appendChild(div);
+            };
+
+            appData.diario.forEach(entry => {
+                if(entry.content.toLowerCase().includes(term) || entry.dateStr.toLowerCase().includes(term)) {
+                    let snip = entry.content.substring(Math.max(0, entry.content.toLowerCase().indexOf(term) - 20), entry.content.toLowerCase().indexOf(term) + 60);
+                    makeResult(`Diário: ${entry.dateStr.split(',')[0]}`, 'diario', `...${snip}...`);
+                }
+            });
+
+            if(appData.futuro.toLowerCase().includes(term)) makeResult('Futuro', 'futuro', 'Encontrado no registro futuro.');
+            if(appData.financas.toLowerCase().includes(term)) makeResult('Finanças', 'financas', 'Encontrado nas finanças.');
+            if(appData.ideias.toLowerCase().includes(term)) makeResult('Ideias', 'ideias', 'Encontrado nas ideias.');
+            if(appData.citacoes.toLowerCase().includes(term)) makeResult('Citações', 'citacoes', 'Encontrado nas citações.');
+
+            if(count === 0) resContainer.innerHTML = '<p class="view-desc">Nenhum resultado encontrado.</p>';
+        } else if (term.length === 0) { switchTab('diario'); }
+    };
+
+    document.getElementById('global-search').addEventListener('input', handleSearch);
+    if(document.getElementById('desktop-search')) document.getElementById('desktop-search').addEventListener('input', handleSearch);
+
+    function downloadJSON() {
+        const a = document.createElement('a');
+        a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+        a.download = "meu_bujo_backup.json";
+        document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    document.getElementById('share-btn').addEventListener('click', () => {
+        downloadJSON();
+        const bodyText = `[Meu Bujo Backup]\n\n⚠️ Anexe o arquivo 'meu_bujo_backup.json' que acabou de ser baixado.`;
+        document.getElementById('share-email').href = `mailto:?subject=[Meu Bujo Backup]&body=${encodeURIComponent(bodyText)}`;
+        document.getElementById('share-whatsapp').href = `https://wa.me/?text=${encodeURIComponent('*[Meu Bujo Backup]*\n\n' + bodyText)}`;
+        document.getElementById('share-modal').classList.add('active');
+    });
+
+    document.getElementById('import-btn').addEventListener('click', () => document.getElementById('import-file').click());
+    document.getElementById('import-file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            try {
+                const imported = JSON.parse(ev.target.result);
+                if(imported && typeof imported === 'object') {
+                    if(confirm("Isso irá sobrescrever suas anotações atuais. Tem certeza?")) {
+                        appData = {...defaultState, ...imported}; saveData(); initApp(); alert("Restaurado com sucesso!");
+                    }
+                }
+            } catch(err) { alert("Arquivo JSON inválido."); }
+        };
+        reader.readAsText(file); e.target.value = '';
+    });
+
+    function initApp() {
+        applyTheme(appData.theme || 'light');
+        document.getElementById('text-futuro').value = appData.futuro || '';
+        document.getElementById('text-financas').value = appData.financas || '';
+        document.getElementById('text-ideias').value = appData.ideias || '';
+        document.getElementById('text-citacoes').value = appData.citacoes || '';
+        document.getElementById('text-refugio').value = appData.refugio || '';
+        document.getElementById('text-habit-names').value = appData.habitNames || '';
+        if (appData.diario) appData.diario.sort((a,b) => b.id - a.id);
+        renderDiario(); renderHabits();
+    }
+    initApp();
+</script>
+</body>
+</html>
